@@ -1,13 +1,25 @@
 import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import {Platform, StyleSheet, useColorScheme} from 'react-native';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import {styled, ThemeProvider } from "styled-components/native";
+import {darkTheme, lightTheme} from "@/constants/themes";
+import {useReactiveVar} from "@apollo/client";
+import {colorModeVar} from "@/src/apollo";
+
+
+const IndexTest = styled.Text`
+  font-weight: bold;
+  font-size: 19px;
+  color: ${props => props.theme.fontColor};
+`
 
 export default function HomeScreen() {
   return (
+    <ThemeProvider theme={darkTheme}>
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
       headerImage={
@@ -17,7 +29,7 @@ export default function HomeScreen() {
         />
       }>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
+        <IndexTest>Welcome!</IndexTest>
         <HelloWave />
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
@@ -52,6 +64,7 @@ export default function HomeScreen() {
         </ThemedText>
       </ThemedView>
     </ParallaxScrollView>
+    </ThemeProvider>
   );
 }
 
@@ -68,8 +81,15 @@ const styles = StyleSheet.create({
   reactLogo: {
     height: 178,
     width: 290,
-    bottom: 0,
+      bottom: 0,
     left: 0,
     position: 'absolute',
   },
 });
+//nvm use 20.12.2
+
+
+// not installed packages
+//    "apollo-link-ws": "^1.0.20",
+//    "react-native-elements": "^3.4.3",
+// npm show expo versions

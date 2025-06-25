@@ -1,0 +1,39 @@
+import React, {useEffect} from 'react';
+import {Text, TouchableOpacity, View, FlatList} from 'react-native';
+import ScreenLayout from '../../components/ScreenLayout.tsx';
+import {gql, useQuery} from '@apollo/client';
+import {MATCH_FRAGMENT} from '../../fragments.tsx';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../../shared/shared.types.ts';
+
+type MatchesAlarmProps = NativeStackScreenProps<RootStackParamList, 'Matches'>;
+
+const SEE_MATCHES_QUERY = gql`
+  query seeMatches {
+    seeMatches {
+      ...MatchParts
+    }
+  }
+  ${MATCH_FRAGMENT}
+`;
+
+export default function Matches({
+  navigation,
+  route: {params: MatchParams},
+}: MatchesAlarmProps) {
+  useEffect(() => {
+    console.log('matches');
+  }, []);
+
+  const {loading: matchLoading, refetch} = useQuery(SEE_MATCHES_QUERY, {
+    fetchPolicy: 'network-only',
+  });
+
+  return (
+    <ScreenLayout loading={matchLoading}>
+      <View>
+        <Text>Matches</Text>
+      </View>
+    </ScreenLayout>
+  );
+}
