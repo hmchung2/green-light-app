@@ -9,11 +9,11 @@ import {
 import {onError} from '@apollo/client/link/error';
 import {setContext} from '@apollo/client/link/context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {createUploadLink} from 'apollo-upload-client';
 import {createClient} from 'graphql-ws';
 import {GraphQLWsLink} from '@apollo/client/link/subscriptions';
 import {getMainDefinition} from '@apollo/client/utilities';
 import {FragmentDefinitionNode, OperationDefinitionNode} from 'graphql';
+import createUploadLink from 'apollo-upload-client/createUploadLink.mjs';
 
 export const isLoggedInVar = makeVar<boolean>(false);
 export const tokenVar = makeVar<string | null>(null);
