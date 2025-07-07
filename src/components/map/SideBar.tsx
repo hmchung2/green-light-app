@@ -1,19 +1,12 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  FlatList,
-  StyleSheet,
-  ActivityIndicator,
-} from 'react-native';
-import {User} from '../../generated/graphql.ts';
-import AvatarImg from '../users/AvatarImg.tsx';
-import styled from 'styled-components/native';
+import {TouchableOpacity, FlatList, ActivityIndicator} from 'react-native';
+import {User} from '../../generated/graphql';
+import AvatarImg from '../users/AvatarImg';
+import {styled} from 'styled-components/native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {RootStackParamList} from '../../shared/shared.types.ts';
-import {SeparatorView} from '../flatList/SeparatorView.tsx';
+import {RootStackParamList} from '../../shared/shared.types';
+import {SeparatorView} from '../flatList/SeparatorView';
 
 interface SideBarProps {
   currentUsers: User[];

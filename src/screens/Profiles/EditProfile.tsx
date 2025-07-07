@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import styled, {css} from 'styled-components/native';
+import {styled, css, useTheme} from 'styled-components/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {RootStackParamList} from '../../shared/shared.types.ts';
+import {RootStackParamList} from '../../shared/shared.types';
 import {
   ActivityIndicator,
   FlatList,
@@ -12,19 +12,17 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import AvatarImg from '../../components/users/AvatarImg.tsx';
+import AvatarImg from '../../components/users/AvatarImg';
 import {launchImageLibrary} from 'react-native-image-picker';
-import {colors} from '../../colors.ts';
-import {ReactNativeFile} from 'apollo-upload-client';
+import {colors} from '../../colors';
 import {
   EditProfileMutation,
   EditProfileMutationVariables,
   useEditProfileMutation,
   useValidCreateAccountLazyQuery,
-} from '../../generated/graphql.ts';
-import LabeledTextInput from '../../components/profile/LabeledTextInput.tsx';
-import LabeledInputContainer from '../../components/profile/LabeldComponent.tsx';
-import {useTheme} from 'styled-components';
+} from '../../generated/graphql';
+import LabeledTextInput from '../../components/profile/LabeledTextInput';
+import LabeledInputContainer from '../../components/profile/LabeldComponent';
 
 type EditProfileProps = NativeStackScreenProps<
   RootStackParamList,
@@ -294,9 +292,7 @@ const GenderButton = ({
 export default function EditProfile({navigation, route}: EditProfileProps) {
   const {editData} = route.params;
   const theme = useTheme();
-
   const photoNumber = 4;
-
   const [updatingPhotos, setUpdatingPhotos] = useState<SimplePhoto[]>(() => {
     const originalPhotos =
       editData.me.photos?.map((p: any) => ({
@@ -480,7 +476,6 @@ export default function EditProfile({navigation, route}: EditProfileProps) {
     );
   };
 
-  // eslint-disable-next-line react/no-unstable-nested-components
   const RowSeparator = () => <GapView />;
 
   const [editProfileMutation, {loading: editProfileLoading}] =
@@ -548,32 +543,32 @@ export default function EditProfile({navigation, route}: EditProfileProps) {
     }
 
     const newPhotos = updatingPhotos.map(photo => {
-      // @ts-ignore
       const fileName = photo.file ? photo.file.split('/').pop() : null;
-      // @ts-ignore
       const fileType = fileName ? fileName.split('.').pop() : null;
+      let uploadFile = null;
+      if (photo.file) {
+        uploadFile = {
+          uri: photo.file,
+          name: fileName || `${username}-photo.jpg`,
+          type: `image/${fileType}`,
+        };
+      }
       return {
-        id: photo.id ? Number(photo.id) : null, // Ensure id is a number or null
+        id: photo.id ? Number(photo.id) : null,
         originalId: photo.originalId ? Number(photo.originalId) : null,
-        originalFileUrl: photo.originalFileUrl ? photo.originalFileUrl : null,
-        file: photo.file
-          ? new ReactNativeFile({
-              uri: photo.file,
-              type: `image/${fileType}`, // Use the file extension to determine the type
-              name: fileName || `${username}-avatar.jpg`, // Use the original name or generate a new one
-            })
-          : null, // Set to null if there's no file
+        originalFileUrl: photo.originalFileUrl || null,
+        file: uploadFile,
       };
     });
 
     const updatedData: EditProfileMutationVariables = {photos: newPhotos};
 
-    if (avatar !== editData.me.avatar) {
-      updatedData.avatar = new ReactNativeFile({
+    if (avatar !== editData.me.avatar && avatar !== null) {
+      updatedData.avatar = {
         uri: avatar,
         name: `${username}-avatar.jpg`,
         type: 'image/jpeg',
-      });
+      };
     }
 
     if (username !== editData.me.username) {
@@ -595,6 +590,7 @@ export default function EditProfile({navigation, route}: EditProfileProps) {
     if (birthDay !== editData.me.birthDay) {
       updatedData.birthDay = new Date(parseInt(birthDay, 10)).toISOString();
     }
+
     console.log('updatedData : ', updatedData);
 
     try {

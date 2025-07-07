@@ -6,28 +6,27 @@ import {
   useFollowUserMutation,
   useSeeSimpleProfileQuery,
   useUnfollowUserMutation,
-} from '../../generated/graphql.ts';
+} from '../../generated/graphql';
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {
   NonNullableDetailMeQuery,
   RootStackParamList,
-} from '../../shared/shared.types.ts';
-import Loading from '../../components/Loading.tsx';
-import AvatarImg from '../../components/users/AvatarImg.tsx';
+} from '../../shared/shared.types';
+import Loading from '../../components/Loading';
+import AvatarImg from '../../components/users/AvatarImg';
 import {
-  ActivityIndicator,
   FlatList,
   Image,
   Modal,
   TouchableOpacity,
   useWindowDimensions,
 } from 'react-native';
-import {colors} from '../../colors.ts';
-import {logUserOut} from '../../apollo.tsx';
+import {colors} from '../../colors';
+import {logUserOut} from '../../apollo';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {calculateAge} from '../../hooks/Utils.tsx';
+import {calculateAge} from '../../hooks/Utils';
 
 type SimpleProfileProps = NativeStackScreenProps<
   RootStackParamList,
@@ -191,7 +190,6 @@ export default function MyProfile({navigation, route}: SimpleProfileProps) {
     setModalVisible(false);
   };
 
-  // eslint-disable-next-line react/no-unstable-nested-components
   const RowSeparator = () => <GapView />;
 
   const renderItem = ({item: photo}: any) => {

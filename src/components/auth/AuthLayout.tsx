@@ -7,7 +7,9 @@ import {
   View,
   useColorScheme,
 } from 'react-native';
-import styled from 'styled-components/native';
+import {styled} from 'styled-components/native';
+import glLogoDark from '@/assets/glLogo-dark.png';
+import glLogoLight from '@/assets/glLogo-light.png';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -32,9 +34,7 @@ const Logo = styled.Image`
 
 export default function AuthLayout({children, logoMarginTop}: AuthLayoutProps) {
   const isDark = useColorScheme() === 'dark';
-  const logoSource = isDark
-    ? require('../../assets/glLogo-dark.png')
-    : require('../../assets/glLogo-light.png');
+  const logoSource = isDark ? glLogoDark : glLogoLight;
 
   const dismissKeyboard = () => {
     Keyboard.dismiss();

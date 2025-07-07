@@ -5,8 +5,7 @@ import AuthLayout from '../../components/auth/AuthLayout';
 import AuthButton from '../../components/auth/AuthButton';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {useForm} from 'react-hook-form';
-import {SignUpAppContext} from '../../hooks/SignUpContext.tsx';
-import {ReactNativeFile} from 'apollo-upload-client';
+import {SignUpAppContext} from '../../hooks/SignUpContext';
 import {
   CreateAccountMutation,
   useCreateAccountMutation,
@@ -148,11 +147,11 @@ export default function ConditionStep({navigation}: ConditionStepProps) {
     setValue('birthDay', birthDayDate);
 
     if (avatarUri) {
-      const file = new ReactNativeFile({
+      const file = {
         uri: avatarUri,
         name: `${username}-avatar.jpg`,
         type: 'image/jpeg',
-      });
+      };
       setValue('avatar', file);
     }
   }, []);

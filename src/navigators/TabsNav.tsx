@@ -1,15 +1,15 @@
 import React, {useEffect} from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import EmptyScreen from '../screens/EmptyScreen';
-import TabIcon from '../components/icon/TabIcon.tsx';
-import {useTheme} from 'styled-components';
+import TabIcon from '../components/icon/TabIcon';
+import {useTheme} from 'styled-components/native';
 import MapScreen from '../screens/MapScreen';
-import {RootStackParamList} from '../shared/shared.types.ts';
-import Alarms from '../screens/Alarms/Alarms.tsx';
-import {useNotifications} from '../hooks/NotificiationContext.tsx';
-import {useAlarmUpdatesSubscription} from '../generated/graphql.ts';
+import {RootStackParamList} from '../shared/shared.types';
+import Alarms from '../screens/Alarms/Alarms';
+import {useNotifications} from '../hooks/NotificiationContext';
+import {useAlarmUpdatesSubscription} from '../generated/graphql';
 import {Reference, StoreObject, gql, useApolloClient} from '@apollo/client';
-import MyProfile from '../screens/Profiles/MyProfile.tsx';
+import MyProfile from '../screens/Profiles/MyProfile';
 
 const Tabs = createBottomTabNavigator<RootStackParamList>();
 

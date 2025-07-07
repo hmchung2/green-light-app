@@ -4,7 +4,7 @@ import EachRoom from '../screens/EachRoom';
 import {createStackNavigator} from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {colors} from '../colors';
-import {useTheme} from 'styled-components';
+import {useTheme} from 'styled-components/native';
 import {RootStackParamList} from '../shared/shared.types';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 
@@ -22,7 +22,6 @@ export default function MessagesNav({navigation}: MessagesNavProps) {
     <NativeStack.Navigator
       screenOptions={{
         cardStyle: {backgroundColor: theme.bgColor},
-        animationEnabled: false,
       }}>
       <NativeStack.Screen
         name="Rooms"

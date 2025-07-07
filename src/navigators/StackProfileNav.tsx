@@ -1,15 +1,14 @@
 import {colorModeVar} from '../apollo';
 import {useReactiveVar} from '@apollo/client';
 import {createStackNavigator} from '@react-navigation/stack';
-import EditProfile from '../screens/Profiles/EditProfile.tsx';
-import SimpleProfile from '../screens/Profiles/SimpleProfile.tsx';
-import {RootStackParamList} from '../shared/shared.types.ts';
+import EditProfile from '../screens/Profiles/EditProfile';
+import SimpleProfile from '../screens/Profiles/SimpleProfile';
+import {RootStackParamList} from '../shared/shared.types';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {useEffect} from 'react';
-import React from 'react';
-import Matches from '../screens/Profiles/Matches.tsx';
-import Following from '../screens/Profiles/Following.tsx';
-import MatchTabNav from './MatchTabNav.tsx';
+import React, {useEffect} from 'react';
+import Matches from '../screens/Profiles/Matches';
+import Following from '../screens/Profiles/Following';
+import MatchTabNav from './MatchTabNav';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -30,7 +29,6 @@ const StackProfileNav = ({navigation, route}: StackProfileNavProps) => {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerBackTitleVisible: false,
         headerStyle: {
           backgroundColor: isDarkMode === 'light' ? 'white' : 'black',
         },
@@ -51,20 +49,9 @@ const StackProfileNav = ({navigation, route}: StackProfileNavProps) => {
         options={{headerTitle: 'Edit Profile'}}
       />
       <Stack.Screen
-        name={'Matches'}
-        options={{headerShown: false}}
-        component={Matches}
-      />
-      <Stack.Screen
-        name={'Following'}
-        component={Following}
-        options={{headerTitle: 'Following'}}
-      />
-
-      <Stack.Screen
         name={'MatchesTab'}
         component={MatchTabNav}
-        options={{headerTitle: 'Connections'}}
+        options={{headerShown: false}}
       />
     </Stack.Navigator>
   );

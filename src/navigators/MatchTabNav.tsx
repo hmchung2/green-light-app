@@ -1,28 +1,45 @@
 import React from 'react';
+import {View, StatusBar, Platform} from 'react-native';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import {useTheme} from 'styled-components';
-import {RootStackParamList} from '../shared/shared.types.ts';
-import EmptyScreen from '../screens/EmptyScreen.tsx';
+import {useTheme} from 'styled-components/native';
+import Matches from '@/src/screens/Profiles/Matches';
+import Following from '@/src/screens/Profiles/Following';
 
-const TopTabs = createMaterialTopTabNavigator<RootStackParamList>();
+const TopTabs = createMaterialTopTabNavigator();
 
 export default function MatchTabNav() {
   const theme = useTheme();
 
   return (
-    <TopTabs.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarShowLabel: false,
-        tabBarStyle: {
-          backgroundColor: theme.bgColor,
-          borderTopColor: theme.fontColor,
-        },
-        tabBarActiveTintColor: theme.fontColor,
-        tabBarInactiveTintColor: 'red',
+    <View
+      style={{
+        flex: 1,
+        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+        backgroundColor: theme.bgColor,
       }}>
-      <TopTabs.Screen name="MyProfile" component={EmptyScreen} />
-      <TopTabs.Screen name="FollowingInner" component={EmptyScreen} />
-    </TopTabs.Navigator>
+      <TopTabs.Navigator
+        screenOptions={{
+          tabBarShowLabel: true,
+          tabBarLabelStyle: {
+            fontSize: 14,
+            fontWeight: '600',
+            textTransform: 'capitalize',
+            color: theme.fontColor,
+          },
+          tabBarStyle: {
+            backgroundColor: theme.bgColor,
+            borderBottomWidth: 1,
+            borderBottomColor: theme.separatorLineColor,
+            elevation: 0, // removes Android shadow
+          },
+          tabBarIndicatorStyle: {
+            backgroundColor: theme.fontColor,
+            height: 2,
+          },
+        }}>
+        <TopTabs.Screen name="Matches" component={Matches} />
+        <TopTabs.Screen name="Following" component={Following} />
+      </TopTabs.Navigator>
+    </View>
   );
 }

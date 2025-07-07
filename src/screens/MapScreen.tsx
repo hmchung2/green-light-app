@@ -1,15 +1,9 @@
 import React, {useRef, useEffect, useState} from 'react';
-import {
-  View,
-  Platform,
-  PermissionsAndroid,
-  DrawerLayoutAndroid,
-} from 'react-native';
-import Geolocation from '@react-native-community/geolocation';
-import RealTimeMap from '../components/map/RealTimeMap.tsx';
-import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
-import SideBar from '../components/map/SideBar.tsx';
-import {User} from '../generated/graphql.ts';
+import {View, Platform, DrawerLayoutAndroid} from 'react-native';
+import * as Location from 'expo-location';
+import RealTimeMap from '../components/map/RealTimeMap';
+import SideBar from '../components/map/SideBar';
+import {User} from '../generated/graphql';
 import styled from 'styled-components/native';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 
@@ -37,44 +31,36 @@ export default function MapScreen() {
     null,
   );
   const [currentUsers, setCurrentUsers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false); // 추가 데이터 로딩 상태
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const drawerRef = useRef<DrawerLayoutAndroid | null>(null);
+  const Drawer = createDrawerNavigator();
 
   useEffect(() => {
     const requestLocationPermission = async () => {
       try {
-        let granted;
-        if (Platform.OS === 'ios') {
-          granted = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-        } else {
-          granted = await PermissionsAndroid.requestMultiple([
-            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-            PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
-          ]);
+        let {status} = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          console.error('Permission to access location was denied');
+          return;
         }
-        Geolocation.getCurrentPosition(
-          position => {
-            console.log('Getting data');
-            setInitialLocation({
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-            });
-          },
-          error => {
-            console.error('Error getting location:', error);
-          },
-        );
+
+        const location = await Location.getCurrentPositionAsync({});
+        setInitialLocation({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
       } catch (err) {
-        console.error('권한 오류:', err); // 구글 API 키 넣어야 함()
+        console.error('Error getting location:', err);
       }
     };
+
     requestLocationPermission();
   }, []);
 
-  // 스크롤 끝에 도달했을 때 추가 데이터 로드
   const handleEndReached = () => {
     if (!isLoading) {
+      // Load more user data
     }
   };
 
@@ -86,13 +72,11 @@ export default function MapScreen() {
     }
   };
 
-  // 사이드바 닫기
   const closeSidebar = () => {
     if (drawerRef.current) {
       drawerRef.current.closeDrawer();
     }
   };
-  const Drawer = createDrawerNavigator();
 
   return (
     <Drawer.Navigator
@@ -111,7 +95,7 @@ export default function MapScreen() {
       <Drawer.Screen
         name="MapMainScreen"
         options={{
-          headerShown: false, // Ensures the header is hidden for this specific screen
+          headerShown: false,
         }}>
         {props => (
           <View style={{flex: 1}}>

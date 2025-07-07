@@ -1,22 +1,21 @@
 import React, {useEffect, useRef, useState} from 'react';
 import MapView, {Marker, Circle, Region} from 'react-native-maps';
-import {customMapStyle} from '../../../constants/mapStyle.ts';
+import {customMapStyle} from '../../../constants/mapStyle';
 import {ApolloClient, useApolloClient, useQuery} from '@apollo/client';
-import {MAP_UPDATES} from '../../documents/subscriptions/mapUpdates.subscription.ts';
+import {MAP_UPDATES} from '../../documents/subscriptions/mapUpdates.subscription';
 import {
+  UpdateLocationMutation,
   Location,
   SelectLocationsQuery,
-  UpdateLocationMutation,
   User,
   useUpdateLocationMutation,
-} from '../../generated/graphql.ts';
-import MapScreenLayout from './MapScreenLayOut.tsx';
-import {LOCATION_FRAGMENT} from '../../fragments.tsx';
-import gql from 'graphql-tag';
-import Geolocation from '@react-native-community/geolocation';
-import {Animated, View, PermissionsAndroid, Platform} from 'react-native';
-import {request, PERMISSIONS} from 'react-native-permissions';
-import {colors} from '../../colors.ts';
+} from '../../generated/graphql';
+import MapScreenLayout from './MapScreenLayOut';
+import {LOCATION_FRAGMENT} from '../../fragments';
+import {gql} from 'graphql-tag';
+import {Animated, View} from 'react-native';
+import {colors} from '../../colors';
+import * as ExpoLocation from 'expo-location';
 
 interface RealTimeMapProps {
   initialLatitude: number;
@@ -32,7 +31,7 @@ interface RealTimeLocationCoords {
 interface LocationDataProps {
   selectLocations: {
     id: number;
-    locations: Array<Location> | null;
+    locations: Location[] | null;
   };
 }
 
@@ -55,16 +54,14 @@ export default function RealTimeMap({
   initialLongitude,
   setCurrentUsers,
 }: RealTimeMapProps) {
-  const checkingDigits: number = 4;
-  const rerenderThreshHold: number = 0.03;
-  const client: ApolloClient<Object> = useApolloClient();
+  const checkingDigits = 4;
+  const rerenderThreshHold = 0.03;
+  const client: ApolloClient<object> = useApolloClient();
   const [subscribed, setSubscribed] = useState(false);
-
   const [opacityAnim] = useState(new Animated.Value(1));
 
-  const parse = (num: number): number => {
-    return parseFloat(num.toFixed(checkingDigits));
-  };
+  const parse = (num: number): number =>
+    parseFloat(num.toFixed(checkingDigits));
 
   const [realTimeLocation, setRealTimeLocation] =
     useState<RealTimeLocationCoords>({
@@ -81,17 +78,6 @@ export default function RealTimeMap({
   const realTimeLocationRef = useRef(realTimeLocation);
   realTimeLocationRef.current = realTimeLocation;
 
-  // const {
-  //   data: realTimeData,
-  //   loading: realTimeLoading,
-  //   error: realTimeError,
-  // } = useSubscription(MAP_UPDATES, {
-  //   variables: {
-  //     generalLat: latitude,
-  //     generalLon: longitude,
-  //   },
-  // });
-
   const {
     data: locationData,
     loading: initialLoading,
@@ -105,48 +91,20 @@ export default function RealTimeMap({
     fetchPolicy: 'network-only',
   });
 
-  const initialRegion: Region = {
-    latitude: initialLatitude || 0,
-    longitude: initialLongitude || 0,
-    latitudeDelta: 0.005, // Smaller delta values for higher zoom
-    longitudeDelta: 0.005,
-  };
-
-  // useEffect(() => {
-  //   if (locationData) {
-  //     console.log('locationData from here:', locationData);
-  //     client.writeQuery({
-  //       query: SEE_LOCATIONS_QUERY,
-  //       data: locationData,
-  //       variables: {lat: initialLatitude, lon: initialLongitude},
-  //     });
-  //   }
-  // }, [locationData, initialLatitude, initialLongitude, client]);
-
   const [updateLocationMutation, {loading: updatingLocation}] =
     useUpdateLocationMutation({
       onCompleted: (data: UpdateLocationMutation): void => {},
     });
 
-  // const {
-  //   data: subscriptionData,
-  //   loading: subscriptionLoading,
-  //   error: subscriptionError,
-  // } = useSubscription(MAP_UPDATES, {
-  //   variables: {
-  //     generalLat: initialLatitude,
-  //     generalLon: 55,
-  //   },
-  // });
+  const initialRegion: Region = {
+    latitude: initialLatitude || 0,
+    longitude: initialLongitude || 0,
+    latitudeDelta: 0.005,
+    longitudeDelta: 0.005,
+  };
 
   useEffect(() => {
     if (locationData && !subscribed) {
-      console.log(
-        'subscribed to more!!!!!!!!!!!!!!!!!!! ',
-        initialLatitude,
-        ' : ',
-        initialLongitude,
-      );
       subscribeToMore({
         document: MAP_UPDATES,
         variables: {
@@ -154,38 +112,30 @@ export default function RealTimeMap({
           generalLon: initialLongitude,
         },
         updateQuery: (prevQuery: SelectLocationsQuery, options: any): any => {
-          // console.log('update Query : ', options);
           const {
             subscriptionData: {
               data: {mapUpdates: realTimeLocation},
             },
           } = options;
-          console.log('realTimeLocation.userId  : ', realTimeLocation);
+
           const locationFragment = client.cache.writeFragment({
             fragment: LOCATION_FRAGMENT,
             data: realTimeLocation,
           });
-          console.log('locationFragment : ', locationFragment);
+
           const cacheId = client.cache.identify({
             __typename: 'Location',
             userId: realTimeLocation.userId,
           });
-          console.log(`LocationRoom:${locationData.selectLocations.id}`);
+
           client.cache.modify({
             id: `LocationRoom:${locationData.selectLocations.id}`,
             fields: {
-              locations(prev) {
-                const existingLocation = prev.find(
+              locations(prev = []) {
+                const alreadyExists = prev.some(
                   (aLocation: any) => aLocation.__ref === cacheId,
                 );
-                console.log('existingLocation : ', existingLocation);
-                console.log(
-                  'locationFragment.__ref : ',
-                  locationFragment?.__ref,
-                );
-                if (existingLocation) {
-                  return prev;
-                }
+                if (alreadyExists) return prev;
                 return [...prev, locationFragment];
               },
             },
@@ -193,107 +143,79 @@ export default function RealTimeMap({
         },
       });
       setSubscribed(true);
-    } else {
-      console.log('Already Subscribed !!!!!!!!!!!!!!!!!!');
     }
-    if (locationData?.selectLocations) {
-      console.log('location data : ', locationData);
-      const locationsList = locationData.selectLocations.locations;
-      if (locationsList) {
-        const users = locationsList.map(location => location.user);
-        setCurrentUsers(users);
-      }
+
+    if (locationData?.selectLocations?.locations) {
+      const users = locationData.selectLocations.locations.map(loc => loc.user);
+      setCurrentUsers(users);
     }
   }, [locationData, subscribed]);
 
   useEffect(() => {
-    console.log('Starting Real Time Map@@@@@@@@');
-    let watchId: number | null = null;
-    const watchRealTime = async () => {
-      console.log('watch started');
-      if (Platform.OS === 'ios') {
-        await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-      } else {
-        await PermissionsAndroid.requestMultiple([
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
-        ]);
+    let locationSubscription: ExpoLocation.LocationSubscription | null = null;
+
+    const startWatchingLocation = async () => {
+      const {status} = await ExpoLocation.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.error('Permission to access location was denied');
+        return;
       }
 
-      watchId = Geolocation.watchPosition(
-        position => {
+      locationSubscription = await ExpoLocation.watchPositionAsync(
+        {
+          accuracy: ExpoLocation.Accuracy.High,
+          distanceInterval: 1, // meters
+          timeInterval: 1000, // ms
+        },
+        location => {
           const currentLocation = {
-            latitude: parse(position.coords.latitude),
-            longitude: parse(position.coords.longitude),
+            latitude: parse(location.coords.latitude),
+            longitude: parse(location.coords.longitude),
           };
+
           if (
             currentLocation.latitude !== realTimeLocationRef.current.latitude ||
             currentLocation.longitude !== realTimeLocationRef.current.longitude
           ) {
-            console.log('setting Realtime');
-            console.log(
-              currentLocation.latitude +
-                ' vs ' +
-                realTimeLocationRef.current.latitude,
-            );
-            console.log(
-              currentLocation.longitude +
-                ' vs ' +
-                realTimeLocationRef.current.longitude,
-            );
             setRealTimeLocation(currentLocation);
           }
         },
-        error => {
-          console.error('Error getting location:', error);
-        },
-        {enableHighAccuracy: true, distanceFilter: 0},
       );
     };
-    watchRealTime();
+
+    startWatchingLocation();
+
     return () => {
-      if (watchId !== null) {
-        Geolocation.clearWatch(watchId);
+      if (locationSubscription) {
+        locationSubscription.remove();
       }
     };
   }, []);
 
   useEffect(() => {
-    console.log('Updated realTimeLocation : ', realTimeLocation);
     if (!updatingLocation) {
-      console.log('sending data');
       updateLocationMutation({
         variables: {
           lat: realTimeLocation.latitude,
           lon: realTimeLocation.longitude,
         },
-      }).catch(error => console.log(error));
-      if (
+      }).catch(console.error);
+
+      const movedTooFar =
         Math.abs(realTimeLocation.latitude - lastSelectPoint.latitude) >
           rerenderThreshHold ||
         Math.abs(realTimeLocation.longitude - lastSelectPoint.longitude) >
-          rerenderThreshHold
-      ) {
-        console.log('moved too much -> selecting near by again');
+          rerenderThreshHold;
+
+      if (movedTooFar) {
         refetch({
           lat: realTimeLocation.latitude,
           lon: realTimeLocation.longitude,
-        }).catch(error => console.log('error : ', error));
-        setLastSelectPoint({
-          latitude: realTimeLocation.latitude,
-          longitude: realTimeLocation.longitude,
-        });
+        }).catch(console.error);
+        setLastSelectPoint(realTimeLocation);
       }
-    } else {
-      console.log('already sending');
     }
   }, [realTimeLocation]);
-
-  useEffect(() => {
-    if (initialLoading) {
-      console.log('Fetching near by users');
-    }
-  }, [initialLoading]);
 
   useEffect(() => {
     Animated.loop(
@@ -316,46 +238,30 @@ export default function RealTimeMap({
     <MapScreenLayout loading={initialLoading}>
       <MapView
         style={{flex: 1}}
-        // camera={{
-        //   center: initialRegion, // initialRegion should have latitude and longitude
-        //   pitch: 0, // 0 for looking straight down
-        //   heading: userHeading, // Dynamically update this based on the user's current heading
-        //   altitude: initialAltitude, // Set an initial altitude
-        //   zoom: 20, // Adjust the zoom level as needed
-        // }}
         region={initialRegion}
         showsUserLocation={true}
         customMapStyle={customMapStyle}
-        zoomEnabled={false} // Disables zooming
-        scrollEnabled={false} // Disables panning
-        pitchEnabled={false} // Disables pitch tilt
-        rotateEnabled={true} // Disables rotation
-      >
-        {locationData &&
-          locationData.selectLocations &&
-          locationData.selectLocations.locations &&
-          locationData.selectLocations.locations.map(location => {
-            if (location.lat && location.lon) {
-              return (
-                <AnimatedMarker
-                  key={location.userId}
-                  coordinate={{
-                    latitude: location.lat,
-                    longitude: location.lon,
-                  }}
-                  style={{opacity: opacityAnim}}>
-                  <View
-                    style={{
-                      width: 30,
-                      height: 30,
-                      borderRadius: 15,
-                      backgroundColor: colors.green,
-                    }}
-                  />
-                </AnimatedMarker>
-              );
-            }
-          })}
+        zoomEnabled={false}
+        scrollEnabled={false}
+        pitchEnabled={false}
+        rotateEnabled={true}>
+        {locationData?.selectLocations?.locations?.map(location =>
+          location.lat && location.lon ? (
+            <AnimatedMarker
+              key={location.userId}
+              coordinate={{latitude: location.lat, longitude: location.lon}}
+              style={{opacity: opacityAnim}}>
+              <View
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: 15,
+                  backgroundColor: colors.green,
+                }}
+              />
+            </AnimatedMarker>
+          ) : null,
+        )}
       </MapView>
     </MapScreenLayout>
   );

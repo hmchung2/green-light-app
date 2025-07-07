@@ -1,5 +1,4 @@
 import {Alarm, DetailMeQuery, Location} from '../generated/graphql';
-import MatchTabNav from '../navigators/MatchTabNav.tsx';
 
 export type RootStackParamList = {
   Chats: any;

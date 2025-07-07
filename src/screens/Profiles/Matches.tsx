@@ -1,42 +1,38 @@
-import React, {useEffect, useState} from 'react';
-import styled from 'styled-components/native';
-import ScreenLayout from '../../components/ScreenLayout.tsx';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {RootStackParamList} from '../../shared/shared.types.ts';
+import React, {useEffect} from 'react';
+import {FlatList, TouchableOpacity, ActivityIndicator} from 'react-native';
+import {styled} from 'styled-components/native';
+import ScreenLayout from '../../components/ScreenLayout';
+import {
+  NativeStackScreenProps,
+  NativeStackNavigationProp,
+} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../../shared/shared.types';
 import {gql, useQuery} from '@apollo/client';
-import {MATCH_FRAGMENT} from '../../fragments.tsx';
+import {MATCH_FRAGMENT} from '../../fragments';
+import AvatarImg from '../../components/users/AvatarImg';
+import {SeparatorView} from '../../components/flatList/SeparatorView';
+import {useNavigation} from '@react-navigation/native';
+import {User} from '../../generated/graphql';
 
-const TabButton = styled.TouchableOpacity<{active: boolean}>`
-  flex: 1;
-  padding: 12px 0;
-  border-bottom-width: 2px;
-  border-bottom-color: ${({active, theme}) =>
-    active ? theme.fontColor : 'transparent'};
-`;
-
-const TabText = styled.Text<{active: boolean}>`
-  text-align: center;
-  font-size: 16px;
-  font-weight: 600;
-  color: ${({active, theme}) => (active ? theme.fontColor : '#999')};
-`;
-
-const TabRow = styled.View`
+const Column = styled.View`
   flex-direction: row;
-  border-bottom-width: 1px;
-  border-bottom-color: ${({theme}) => theme.separatorLineColor};
+  align-items: center;
+  padding: 10px;
+`;
+
+const Username = styled.Text`
+  color: ${({theme}) => theme.fontColor};
+  font-weight: 600;
+  font-size: 16px;
+  padding-left: 10px;
 `;
 
 const ContentContainer = styled.View`
-  padding: 20px;
+  flex: 1;
 `;
 
-const PlaceholderText = styled.Text`
-  font-size: 16px;
-  color: ${({theme}) => theme.fontColor};
-`;
-
-type MatchesAlarmProps = NativeStackScreenProps<RootStackParamList, 'Matches'>;
+type MatchesProps = NativeStackScreenProps<RootStackParamList, 'Matches'>;
+type NavigationProps = NativeStackNavigationProp<RootStackParamList>;
 
 const SEE_MATCHES_QUERY = gql`
   query seeMatches {
@@ -47,48 +43,39 @@ const SEE_MATCHES_QUERY = gql`
   ${MATCH_FRAGMENT}
 `;
 
-export default function Matches({
-  navigation,
-  route: {params: MatchParams},
-}: MatchesAlarmProps) {
-  //
-  useEffect(() => {
-    console.log('matches');
-  }, []);
-
-  const {loading: matchLoading, refetch} = useQuery(SEE_MATCHES_QUERY, {
+export default function Matches({}: MatchesProps) {
+  const nav = useNavigation<NavigationProps>();
+  const {data, loading} = useQuery(SEE_MATCHES_QUERY, {
     fetchPolicy: 'network-only',
   });
 
-  const [activeTab, setActiveTab] = useState<'matches' | 'following'>(
-    'matches',
+  const goToProfile = (id: number) => {
+    nav.navigate('StackProfileNav', {
+      screen: 'SimpleProfile',
+      params: {id},
+    });
+  };
+
+  const renderItem = ({item}: {item: User}) => (
+    <TouchableOpacity onPress={() => goToProfile(item.id)}>
+      <Column>
+        <AvatarImg avatarPath={item.avatar ?? undefined} size={70} />
+        <Username>{item.username}</Username>
+      </Column>
+    </TouchableOpacity>
   );
 
   return (
-    <>
-      <TabRow>
-        <TabButton
-          active={activeTab === 'matches'}
-          onPress={() => setActiveTab('matches')}>
-          <TabText active={activeTab === 'matches'}>Matches</TabText>
-        </TabButton>
-        <TabButton
-          active={activeTab === 'following'}
-          onPress={() => setActiveTab('following')}>
-          <TabText active={activeTab === 'following'}>Following</TabText>
-        </TabButton>
-      </TabRow>
-      <ScreenLayout loading={matchLoading}>
-        <ContentContainer>
-          {activeTab === 'matches' ? (
-            <PlaceholderText>Matched users will appear here</PlaceholderText>
-          ) : (
-            <PlaceholderText>
-              Users you're following will appear here
-            </PlaceholderText>
-          )}
-        </ContentContainer>
-      </ScreenLayout>
-    </>
+    <ScreenLayout loading={loading}>
+      <ContentContainer>
+        <FlatList
+          data={data?.seeMatches ?? []}
+          renderItem={renderItem}
+          keyExtractor={item => '' + item.id}
+          ItemSeparatorComponent={SeparatorView}
+          ListFooterComponent={loading ? <ActivityIndicator /> : null}
+        />
+      </ContentContainer>
+    </ScreenLayout>
   );
 }
