@@ -6,9 +6,9 @@ import ScreenLayout from '../components/ScreenLayout';
 import {MATCH_FRAGMENT, ROOM_FRAGMENT} from '../fragments';
 import styled from 'styled-components/native';
 import HList from '../components/users/HList';
-import {Room} from '../generated/graphql.ts';
-import {CHAT_LIST_UPDATES} from '../documents/subscriptions/chatListUpdates.subscription.ts';
-import EmptyList from '../components/flatList/EmptyList.tsx';
+import {Room} from '../generated/graphql';
+import {CHAT_LIST_UPDATES} from '../documents/subscriptions/chatListUpdates.subscription';
+import EmptyList from '../components/flatList/EmptyList';
 
 const SEE_ROOMS_QUERY = gql`
   query seeRooms {
@@ -73,7 +73,7 @@ const PostImage = styled.Image`
 `;
 
 interface ChatDataProps {
-  seeRooms: Array<Room> | null;
+  seeRooms: Room[] | null;
 }
 
 export default function Rooms() {
@@ -135,7 +135,7 @@ export default function Rooms() {
               ) : (
                 <EmptyList
                   title="No new matches"
-                  subtitle="Matched users will appear here"
+                  subtitle="Please, go find matches"
                 />
               )}
             </MarginTopContainer>

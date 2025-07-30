@@ -1,5 +1,5 @@
-import React, {useEffect} from 'react';
-import {FlatList, TouchableOpacity, ActivityIndicator} from 'react-native';
+import React from 'react';
+import {FlatList, TouchableOpacity} from 'react-native';
 import {styled} from 'styled-components/native';
 import ScreenLayout from '../../components/ScreenLayout';
 import {
@@ -13,6 +13,7 @@ import AvatarImg from '../../components/users/AvatarImg';
 import {SeparatorView} from '../../components/flatList/SeparatorView';
 import {useNavigation} from '@react-navigation/native';
 import {User} from '../../generated/graphql';
+import EmptyList from '../../components/flatList/EmptyList';
 
 const Column = styled.View`
   flex-direction: row;
@@ -49,6 +50,8 @@ export default function Matches({}: MatchesProps) {
     fetchPolicy: 'network-only',
   });
 
+  const currentUsers: User[] = data?.seeMatches ?? [];
+
   const goToProfile = (id: number) => {
     nav.navigate('StackProfileNav', {
       screen: 'SimpleProfile',
@@ -68,13 +71,19 @@ export default function Matches({}: MatchesProps) {
   return (
     <ScreenLayout loading={loading}>
       <ContentContainer>
-        <FlatList
-          data={data?.seeMatches ?? []}
-          renderItem={renderItem}
-          keyExtractor={item => '' + item.id}
-          ItemSeparatorComponent={SeparatorView}
-          ListFooterComponent={loading ? <ActivityIndicator /> : null}
-        />
+        {currentUsers.length === 0 ? (
+          <EmptyList
+            title="No matches yet"
+            subtitle="Please, go find matches"
+          />
+        ) : (
+          <FlatList
+            data={currentUsers}
+            renderItem={renderItem}
+            keyExtractor={item => '' + item.id}
+            ItemSeparatorComponent={SeparatorView}
+          />
+        )}
       </ContentContainer>
     </ScreenLayout>
   );
