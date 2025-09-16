@@ -2,13 +2,11 @@ import {colorModeVar} from '../apollo';
 import {useReactiveVar} from '@apollo/client';
 import {createStackNavigator} from '@react-navigation/stack';
 import EditProfile from '../screens/Profiles/EditProfile';
-import SimpleProfile from '../screens/Profiles/SimpleProfile';
 import {RootStackParamList} from '../shared/shared.types';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useEffect} from 'react';
-import Matches from '../screens/Profiles/Matches';
-import Following from '../screens/Profiles/Following';
 import MatchTabNav from './MatchTabNav';
+import SimpleProfile from '../screens/Profiles/SimpleProfile';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -36,14 +34,6 @@ const StackProfileNav = ({navigation, route}: StackProfileNavProps) => {
       }}>
       {/*  here it needs to go to message nav. its in wrong navigation*/}
       <Stack.Screen
-        name="SimpleProfile"
-        component={SimpleProfile}
-        initialParams={route.params}
-        options={{
-          headerTitle: '', // Initially empty
-        }}
-      />
-      <Stack.Screen
         name="EditProfile"
         component={EditProfile}
         options={{headerTitle: 'Edit Profile'}}
@@ -52,6 +42,11 @@ const StackProfileNav = ({navigation, route}: StackProfileNavProps) => {
         name={'MatchesTab'}
         component={MatchTabNav}
         options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="SimpleProfile"
+        component={SimpleProfile}
+        options={{headerTitle: 'Profile'}}
       />
     </Stack.Navigator>
   );

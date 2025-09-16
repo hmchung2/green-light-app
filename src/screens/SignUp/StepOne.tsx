@@ -1,10 +1,10 @@
 import React, {useState, useEffect, useContext} from 'react';
-import {Text, View,} from 'react-native';
+import {Text, View} from 'react-native';
 import AuthButton from '../../components/auth/AuthButton';
 import AuthLayout from '../../components/auth/AuthLayout';
 import {TextInput} from '../../components/auth/AuthShared';
 import StepBar from './StepBar';
-import {SignUpAppContext} from '../../hooks/SignUpContext.tsx';
+import {SignUpAppContext} from '../../hooks/SignUpContext';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {
   CreateAccountValidPage,
@@ -126,6 +126,7 @@ export default function StepOne({navigation}: StepOneProps) {
           onSubmitEditing={() => setActiveInput('password')}
           placeholderTextColor={'rgba(255, 255, 255, 0.6)'}
           onChangeText={text => handleInputChange(setUsername, text)}
+          value={username}
           autoFocus={activeInput === 'username'}
         />
         <TextInput
@@ -134,6 +135,7 @@ export default function StepOne({navigation}: StepOneProps) {
           onSubmitEditing={() => setActiveInput('rePassword')}
           placeholderTextColor={'rgba(255, 255, 255, 0.6)'}
           onChangeText={text => handleInputChange(setPassword, text)}
+          value={password}
           secureTextEntry
           autoFocus={activeInput === 'password'}
         />
@@ -142,6 +144,7 @@ export default function StepOne({navigation}: StepOneProps) {
           returnKeyType="done"
           placeholderTextColor={'rgba(255, 255, 255, 0.6)'}
           onChangeText={text => handleInputChange(setRePassword, text)}
+          value={rePassword}
           lastOne={true}
           secureTextEntry
           autoFocus={activeInput === 'rePassword'}
@@ -152,12 +155,12 @@ export default function StepOne({navigation}: StepOneProps) {
       </View>
       <View style={{width: '85%', alignSelf: 'center'}}>
         <AuthButton
-            text="Next"
-            disabled={false}
-            loading={loading}
-            onPress={() => {
-              void handleNext('StepTwo');
-            }}
+          text="Next"
+          disabled={false}
+          loading={loading}
+          onPress={() => {
+            void handleNext('StepTwo');
+          }}
         />
       </View>
     </AuthLayout>

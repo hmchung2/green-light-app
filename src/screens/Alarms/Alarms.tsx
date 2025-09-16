@@ -1,13 +1,13 @@
 import React, {useRef, useEffect, useState} from 'react';
-import ScreenLayout from '../../components/ScreenLayout.tsx';
+import ScreenLayout from '../../components/ScreenLayout';
 import {FlatList} from 'react-native';
 import {useIsFocused} from '@react-navigation/native';
-import {useNotifications} from '../../hooks/NotificiationContext.tsx';
-import {useSeeAlarmsMutation} from '../../generated/graphql.ts';
-import AlarmItem from '../../components/alarm/AlarmItem.tsx';
-import {SeparatorView} from '../../components/flatList/SeparatorView.tsx';
+import {useNotifications} from '../../hooks/NotificiationContext';
+import {useSeeAlarmsMutation} from '../../generated/graphql';
+import AlarmItem from '../../components/alarm/AlarmItem';
+import {SeparatorView} from '../../components/flatList/SeparatorView';
 import {gql, useQuery} from '@apollo/client';
-import EmptyList from '../../components/flatList/EmptyList.tsx';
+import EmptyList from '../../components/flatList/EmptyList';
 
 const SEE_ALARMS_MY_QUERY = gql`
   query ReadAlarms($offset: Int!) {

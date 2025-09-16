@@ -25,38 +25,51 @@ export const logUserIn = async (token: string): Promise<void> => {
   await AsyncStorage.setItem(TOKEN, token);
   isLoggedInVar(true);
   tokenVar(token);
+  try {
+    await client.clearStore();
+  } catch (e) {
+    console.error('Error clearing Apollo cache on login', e);
+  }
 };
 
 export const logUserOut = async (): Promise<void> => {
   await AsyncStorage.removeItem(TOKEN);
   isLoggedInVar(false);
   tokenVar('');
+  try {
+    await client.clearStore();
+  } catch (e) {
+    console.error('Error clearing Apollo cache on logout', e);
+  }
 };
 
 const uploadHttpLink: ApolloLink = createUploadLink({
-  uri: 'https://f5bc-220-117-216-225.ngrok-free.app/graphql',
+  uri: 'https://e609d5c4992a.ngrok-free.app/graphql',
+  isExtractableFile: (v: any) =>
+    !!v &&
+    typeof v === 'object' &&
+    typeof v.uri === 'string' &&
+    typeof v.name === 'string' &&
+    typeof v.type === 'string',
 });
 
+// ✅ WebSocket link (wss recommended)
 const wsLink: GraphQLWsLink = new GraphQLWsLink(
   createClient({
-    url: 'ws://f5bc-220-117-216-225.ngrok-free.app/graphql',
-    connectionParams: () => {
-      return {
-        token: tokenVar(),
-      };
-    },
+    url: 'wss://e609d5c4992a.ngrok-free.app/graphql',
+    connectionParams: () => ({token: tokenVar()}),
   }),
 );
 
-const authLink: ApolloLink = setContext((_, {headers}) => {
-  return {
-    headers: {
-      ...headers,
-      token: tokenVar(),
-    },
-  };
-});
+// ✅ Auth link (do not override Content-Type!)
+const authLink: ApolloLink = setContext((_, {headers}) => ({
+  headers: {
+    ...headers,
+    token: tokenVar(),
+  },
+}));
 
+// ✅ Error logging
 const onErrorLink: ApolloLink = onError(({graphQLErrors, networkError}) => {
   if (graphQLErrors) {
     console.log('GraphQL Error', graphQLErrors);
@@ -66,10 +79,12 @@ const onErrorLink: ApolloLink = onError(({graphQLErrors, networkError}) => {
   }
 });
 
+// ✅ http link chain
 const httpLinks: ApolloLink = authLink
   .concat(onErrorLink)
   .concat(uploadHttpLink);
 
+// ✅ split queries vs subscriptions
 const splitLink: ApolloLink = split(
   ({query}) => {
     const definition: OperationDefinitionNode | FragmentDefinitionNode =
@@ -83,13 +98,14 @@ const splitLink: ApolloLink = split(
   httpLinks,
 );
 
+// ✅ Cache setup
 export const cache = new InMemoryCache({
   typePolicies: {
     Query: {
       fields: {},
     },
     User: {
-      keyFields: ['id'], // Ensure User objects have an ID
+      keyFields: ['id'],
     },
     Location: {
       keyFields: ['userId'],
@@ -97,16 +113,10 @@ export const cache = new InMemoryCache({
   },
 });
 
+// ✅ Apollo Client
 const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
   link: splitLink,
   cache,
 });
 
 export default client;
-
-// sdk current java
-//
-// sdk list java
-//
-// sdk use java <identifier>
-// sdk use java 17.0.0-tem

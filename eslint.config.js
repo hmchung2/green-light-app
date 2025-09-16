@@ -9,8 +9,8 @@ module.exports = defineConfig([
       prettier: prettierPlugin,
     },
     rules: {
-      indent: ['error', 2], // <- Enforce 4 spaces
-      'prettier/prettier': ['error', {tabWidth: 2}],
+      indent: 'off', // 🔥 ESLint indent 끔
+      'prettier/prettier': ['error', {tabWidth: 2}], // Prettier만 사용
       'react-native/no-inline-styles': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       'react-hooks/exhaustive-deps': 'off',

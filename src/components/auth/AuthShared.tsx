@@ -1,17 +1,15 @@
-import styled from 'styled-components/native';
+import {styled, useTheme} from 'styled-components/native';
 import React, {forwardRef, Ref} from 'react';
 import {
   TextInput as RNTextInput,
   TextInputProps as RNTInputProps,
 } from 'react-native';
-import {useTheme} from 'styled-components';
 
 interface TextInputProps extends RNTInputProps {
   lastOne?: boolean;
 }
 
 const BaseTextInput = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   {lastOne, ...restProps}: TextInputProps,
   ref: Ref<RNTextInput>,
 ) => {
@@ -21,7 +19,7 @@ const BaseTextInput = (
     <RNTextInput
       {...restProps}
       ref={ref}
-      placeholderTextColor={theme.placeHolderFontColor}
+      placeholderTextColor={theme.placeholderFontColor}
     />
   );
 };

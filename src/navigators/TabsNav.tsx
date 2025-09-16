@@ -10,8 +10,10 @@ import {useNotifications} from '../hooks/NotificiationContext';
 import {useAlarmUpdatesSubscription} from '../generated/graphql';
 import {Reference, StoreObject, gql, useApolloClient} from '@apollo/client';
 import MyProfile from '../screens/Profiles/MyProfile';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 const Tabs = createBottomTabNavigator<RootStackParamList>();
+
 
 const ALARM_FRAGMENT = gql`
   fragment AlarmDetails on Alarm {

@@ -1,18 +1,20 @@
 import React, {useContext, useEffect, useState} from 'react';
-import styled from 'styled-components/native';
+import {styled} from 'styled-components/native';
 import {ActivityIndicator, Alert, TextInput} from 'react-native';
 import AuthLayout from '../../components/auth/AuthLayout';
 import AuthButton from '../../components/auth/AuthButton';
 import StepBar from './StepBar';
-import {SignUpAppContext} from '../../hooks/SignUpContext.tsx';
+import {SignUpAppContext} from '../../hooks/SignUpContext';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {
   CreateAccountValidPage,
   RootStackParamList,
 } from '../../shared/shared.types';
-import {useSendVerificationMutation} from '../../generated/graphql';
-import {colors} from '../../colors.ts';
-import {useCheckVerificationLazyQuery} from '../../generated/graphql';
+import {
+  useSendVerificationMutation,
+  useCheckVerificationLazyQuery,
+} from '../../generated/graphql';
+import {colors} from '../../colors';
 
 type stepFourProps = NativeStackScreenProps<RootStackParamList, 'StepFour'>;
 
@@ -28,7 +30,9 @@ const Subtitle = styled.Text`
   margin-bottom: 20px;
 `;
 
-const Input = styled.TextInput`
+const Input = styled.TextInput.attrs(props => ({
+  placeholderTextColor: props.theme.placeholderFontColor,
+}))`
   width: 100%;
   padding: 15px;
   border: 1px solid ${props => props.theme.borderColor};
@@ -44,7 +48,9 @@ const RowContainer = styled.View`
   align-items: center;
 `;
 
-const EmailInput = styled.TextInput`
+const EmailInput = styled.TextInput.attrs(props => ({
+  placeholderTextColor: props.theme.placeholderFontColor,
+}))`
   flex: 9;
   padding: 15px;
   border: 1px solid ${props => props.theme.borderColor};

@@ -1,12 +1,4 @@
-import {
-  CreateAccountMutation,
-  CreateRoomMutation,
-  useCreateRoomMutation,
-  useDetailMeQuery,
-  useFollowUserMutation,
-  useSeeSimpleProfileQuery,
-  useUnfollowUserMutation,
-} from '../../generated/graphql';
+import {useDetailMeQuery, useFollowUserMutation} from '../../generated/graphql';
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
@@ -28,10 +20,7 @@ import {logUserOut} from '../../apollo';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {calculateAge} from '../../hooks/Utils';
 
-type SimpleProfileProps = NativeStackScreenProps<
-  RootStackParamList,
-  'MyProfile'
->;
+type MyProfileProps = NativeStackScreenProps<RootStackParamList, 'MyProfile'>;
 
 const ProfileContainer = styled.View`
   flex: 1;
@@ -58,7 +47,7 @@ const UserContainer = styled.View`
 `;
 
 const TopContainer = styled.View`
-  padding: 15px 10px 0;
+  padding: 55px 15px 0;
 `;
 
 const BottomContainer = styled.View`
@@ -117,6 +106,7 @@ const RightActionText = styled.Text`
 `;
 
 const CommonText = styled.Text`
+  color: ${props => props.theme.fontColor};
   font-size: 15px;
   margin-top: 2px;
 `;
@@ -129,6 +119,7 @@ const UserInfoContainer = styled.View<{width: number}>`
 `;
 
 const Username = styled.Text`
+  color: ${props => props.theme.fontColor};
   font-weight: bold;
   font-size: 18px;
 `;
@@ -136,6 +127,7 @@ const Username = styled.Text`
 const AvatarContainer = styled.TouchableOpacity``;
 
 const Bio = styled.Text`
+  color: ${props => props.theme.fontColor};
   font-size: 15px;
   margin-top: 3px;
 `;
@@ -151,7 +143,7 @@ const ProfilePhotoContainer = styled.TouchableOpacity<{width: number}>`
   width: ${props => props.width / 5}px;
   height: ${props => props.width / 5}px;
   margin: 5px;
-  background-color: gray; /* For icons, so it matches the photo background if any */
+  background-color: gray;
 `;
 
 const ProfilePhoto = styled.Image<{width: number}>`
@@ -164,7 +156,7 @@ const GapView = styled.View`
   width: 100%;
 `;
 
-export default function MyProfile({navigation, route}: SimpleProfileProps) {
+export default function MyProfile({navigation, route}: MyProfileProps) {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
@@ -304,7 +296,7 @@ export default function MyProfile({navigation, route}: SimpleProfileProps) {
             </UserContainer>
             <UserActionContainer>
               <Username>{meData?.me?.username}</Username>
-              <Bio>gender :{meData?.me?.sex == 'F' ? ' Female' : ' Male'}</Bio>
+              <Bio>gender :{meData?.me?.sex === 'F' ? ' Female' : ' Male'}</Bio>
               <Bio>age : {calculateAge(meData?.me?.birthDay)}</Bio>
               <Buttons>
                 <LeftActionButton onPress={goToMatches}>

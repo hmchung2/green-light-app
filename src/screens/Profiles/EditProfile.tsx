@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import AvatarImg from '../../components/users/AvatarImg';
-import {launchImageLibrary} from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker';
 import {colors} from '../../colors';
 import {
   EditProfileMutation,
@@ -23,6 +23,8 @@ import {
 } from '../../generated/graphql';
 import LabeledTextInput from '../../components/profile/LabeledTextInput';
 import LabeledInputContainer from '../../components/profile/LabeldComponent';
+import {ReactNativeFile} from 'extract-files';
+import {launchImageLibrary} from 'react-native-image-picker';
 
 type EditProfileProps = NativeStackScreenProps<
   RootStackParamList,
@@ -72,7 +74,10 @@ const InputContainerOpacity = styled.TouchableOpacity`
   flex-direction: row;
   align-items: center;
 `;
-const UsernameInput = styled.TextInput`
+
+const UsernameInput = styled.TextInput.attrs(props => ({
+  placeholderTextColor: props.theme.placeholderFontColor,
+}))`
   flex: 1.5;
   padding: 5px;
   font-size: 15px;
@@ -151,7 +156,6 @@ const SaveButton = styled.TouchableOpacity<{disabled: boolean}>`
   background-color: ${props =>
     props.disabled ? 'rgba(128, 128, 128, 0.5)' : colors.gray};
   padding: 10px 10px;
-  margin: 10px; /* Center horizontally */
   border-radius: 5px;
   width: 60%;
   justify-content: center;
@@ -257,7 +261,7 @@ const BirthModalBackground = styled.TouchableOpacity`
 const SaveMessage = styled.Text`
   color: red;
   font-size: 12px;
-  margin-top: 0;
+  margin: 20px 0px 90px 0px;
   padding-top: 0;
 `;
 
@@ -443,23 +447,30 @@ export default function EditProfile({navigation, route}: EditProfileProps) {
   };
 
   const updatePhoto = async (index: number) => {
-    closePhotoModal();
-    const options = {
-      mediaType: 'photo',
-      maxWidth: 500,
-      maxHeight: 500,
-      quality: 0.7,
-    };
-    // @ts-ignore
-    const result = await launchImageLibrary(options);
-    if (!result.didCancel && result.assets && result.assets.length > 0) {
-      const selectedPhotoUri = result.assets[0].uri;
-      if (selectedPhotoUri) {
+    try {
+      const permissionResult =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        alert('사진 접근 권한이 필요합니다.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.7,
+      });
+
+      console.log('ImagePicker result:', result);
+
+      if (!result.canceled) {
+        const selectedAsset = result.assets[0];
         const updatedPhotos = [...updatingPhotos];
-        updatedPhotos[index].file = selectedPhotoUri; // Update the photo at the selected index
+        updatedPhotos[index].file = selectedAsset.uri;
         updatedPhotos[index].id = null;
         setUpdatingPhotos(updatedPhotos);
       }
+    } catch (e) {
+      console.error('Error picking photo:', e);
     }
   };
 
@@ -484,8 +495,10 @@ export default function EditProfile({navigation, route}: EditProfileProps) {
         if (data.editProfile.ok) {
           console.log('Profile updated successfully');
           setSaveMessage('');
-          // You can add navigation or success feedback here
-          navigation.navigate('MyProfile', {refresh: true});
+          navigation.navigate('TabNav', {
+            screen: 'MyProfile',
+            params: {refresh: true},
+          });
         } else {
           console.error('Error updating profile:', data.editProfile.error);
           setSaveMessage('Unknown Error saving profile');
@@ -542,33 +555,29 @@ export default function EditProfile({navigation, route}: EditProfileProps) {
       return;
     }
 
-    const newPhotos = updatingPhotos.map(photo => {
-      const fileName = photo.file ? photo.file.split('/').pop() : null;
-      const fileType = fileName ? fileName.split('.').pop() : null;
-      let uploadFile = null;
-      if (photo.file) {
-        uploadFile = {
-          uri: photo.file,
-          name: fileName || `${username}-photo.jpg`,
-          type: `image/${fileType}`,
-        };
-      }
-      return {
+    const newPhotos = updatingPhotos
+      .filter(p => p.file || p.id || p.originalId || p.originalFileUrl)
+      .map(photo => ({
         id: photo.id ? Number(photo.id) : null,
         originalId: photo.originalId ? Number(photo.originalId) : null,
         originalFileUrl: photo.originalFileUrl || null,
-        file: uploadFile,
-      };
-    });
-
+        file: photo.file
+          ? new ReactNativeFile({
+              uri: photo.file,
+              name: photo.file.split('/').pop() || `${username}-photo.jpg`,
+              type: `image/${photo.file.split('.').pop() || 'jpeg'}`,
+            })
+          : null,
+      }));
     const updatedData: EditProfileMutationVariables = {photos: newPhotos};
+    updatedData.photos = newPhotos as any;
 
     if (avatar !== editData.me.avatar && avatar !== null) {
       updatedData.avatar = {
-        uri: avatar,
+        uri: avatar.startsWith('file://') ? avatar : `file://${avatar}`,
         name: `${username}-avatar.jpg`,
         type: 'image/jpeg',
-      };
+      } as any;
     }
 
     if (username !== editData.me.username) {
@@ -609,21 +618,31 @@ export default function EditProfile({navigation, route}: EditProfileProps) {
   };
 
   const updateAvatar = async () => {
-    const options = {
-      mediaType: 'photo',
-      maxWidth: 500,
-      maxHeight: 500,
-      quality: 0.7,
-    };
-    // @ts-ignore
-    const result = await launchImageLibrary(options);
-    if (!result.didCancel && result.assets && result.assets.length > 0) {
-      const selectedAvatarUri = result.assets[0].uri;
-      if (selectedAvatarUri) {
-        setAvatar(selectedAvatarUri);
+    try {
+      const permissionResult =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        alert('사진 접근 권한이 필요합니다.');
+        return;
       }
+
+      // 갤러리 열기
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true, // 크롭 허용
+        aspect: [1, 1], // 정사각형 크롭 (프로필 사진 용)
+        quality: 0.7,
+      });
+
+      console.log('ImagePicker result:', result);
+
+      if (!result.canceled) {
+        const selectedAsset = result.assets[0];
+        setAvatar(selectedAsset.uri); // 상태 업데이트
+      }
+    } catch (e) {
+      console.error('Error picking image:', e);
     }
-    setAvatarModalVisible(false);
   };
 
   const removeAvatar = () => {
@@ -732,6 +751,7 @@ export default function EditProfile({navigation, route}: EditProfileProps) {
             <LabeledInputContainer label={'username'}>
               <InputContainerView>
                 <UsernameInput
+                  placeholder="Enter Username"
                   value={username}
                   onChangeText={text => usernameOnChange(text)}
                 />

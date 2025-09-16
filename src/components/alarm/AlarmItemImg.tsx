@@ -1,7 +1,6 @@
 import React from 'react';
-import styled from 'styled-components/native';
+import {styled, useTheme} from 'styled-components/native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {View} from 'react-native';
 
 interface AlarmItemImgProps {
   alarmType: number;
@@ -14,7 +13,7 @@ const AvatarImage = styled.Image<{size: number}>`
   width: ${({size}) => size}px;
   height: ${({size}) => size}px;
   border-radius: ${({size}) => size / 2}px;
-  margin: 10px 10px 1px 10px;
+  margin: 10px;
 `;
 
 const Type1Container = styled.View<{size: number}>`
@@ -22,7 +21,7 @@ const Type1Container = styled.View<{size: number}>`
   height: ${({size}) => size}px;
   border-radius: ${({size}) => size / 2}px;
   background-color: grey;
-  margin: 10px 10px 1px 10px;
+  margin: 10px;
   justify-content: center;
   align-items: center;
 `;
@@ -31,7 +30,7 @@ const DefaultContainer = styled.View<{size: number}>`
   width: ${({size}) => size}px;
   height: ${({size}) => size}px;
   border-radius: ${({size}) => size / 2}px;
-  margin: 10px 10px 1px 10px;
+  margin: 10px;
   justify-content: center;
   align-items: center;
 `;
@@ -49,6 +48,9 @@ export default function AlarmItemImg({
         borderWidth: 1,
       }
     : {};
+
+  const theme = useTheme();
+
   const renderAlarmContent = () => {
     switch (alarmType) {
       case 1:
@@ -66,7 +68,11 @@ export default function AlarmItemImg({
       default:
         return (
           <DefaultContainer size={size} style={avatarStyle}>
-            <Icon name={'alarm-outline'} size={20} />
+            <Icon
+              name={'alarm-outline'}
+              size={30}
+              color={theme.fontColor || '#000'}
+            />
           </DefaultContainer>
         );
     }

@@ -2,12 +2,12 @@ import React from 'react';
 import TabsNav from './TabsNav';
 import MessagesNav from './MessagesNav';
 import {createStackNavigator} from '@react-navigation/stack';
-import {useTheme} from 'styled-components';
-import StackProfileNav from './StackProfileNav.tsx';
-import {RootStackParamList} from '../shared/shared.types.ts';
-import {NotificationProvider} from '../hooks/NotificiationContext.tsx';
-import GreenLightAlarm from '../screens/Alarms/GreenLightAlarm.tsx';
-import MatchTabNav from './MatchTabNav.tsx';
+import {useTheme} from 'styled-components/native';
+import StackProfileNav from './StackProfileNav';
+import {RootStackParamList} from '../shared/shared.types';
+import {NotificationProvider} from '../hooks/NotificiationContext';
+import GreenLightAlarm from '../screens/Alarms/GreenLightAlarm';
+import MatchTabNav from './MatchTabNav';
 
 const Nav = createStackNavigator<RootStackParamList>();
 
@@ -19,7 +19,6 @@ export default function LoggedInNav() {
       <Nav.Navigator
         screenOptions={{
           cardStyle: {backgroundColor: theme.bgColor},
-          animationEnabled: false,
           headerStyle: {
             backgroundColor: theme.bgColor,
           },

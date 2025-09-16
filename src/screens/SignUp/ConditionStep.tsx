@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {TouchableOpacity} from 'react-native';
+import {TouchableOpacity, ActivityIndicator} from 'react-native';
 import styled from 'styled-components/native';
 import AuthLayout from '../../components/auth/AuthLayout';
 import AuthButton from '../../components/auth/AuthButton';
@@ -87,8 +87,6 @@ export default function ConditionStep({navigation}: ConditionStepProps) {
         createAccount: {ok, error},
       } = data;
       const {username, password} = getValues();
-      console.log(username, password);
-      console.log('navigating');
       if (ok) {
         navigation.navigate('StackLogin', {
           username,
@@ -96,6 +94,7 @@ export default function ConditionStep({navigation}: ConditionStepProps) {
         });
       } else {
         console.log('error :  ', error);
+        setErrorMsg(error || 'Something went wrong'); // 🔹 추가
       }
     },
   });
@@ -109,10 +108,10 @@ export default function ConditionStep({navigation}: ConditionStepProps) {
   } = useForm();
 
   const onValid = async () => {
-    // if (!agree) {
-    //   setErrorMsg('Please, Agree the term');
-    //   return;
-    // }
+    if (!agree) {
+      setErrorMsg('Please, Agree the term');
+      return;
+    }
     if (!loading) {
       const {username, password, sex, birthDay, phoneNo, email, avatar} =
         getValues();
@@ -238,7 +237,12 @@ export default function ConditionStep({navigation}: ConditionStepProps) {
               {Object.keys(errors)[0]} is required
             </Text>
           )}
-          <AuthButton onPress={handleSubmit(onValid)} text="Create Account" />
+          <AuthButton
+            onPress={handleSubmit(onValid)}
+            text="Create Account"
+            disabled={loading}
+            loading={loading}
+          />
         </BtnContainer>
       </Container>
     </AuthLayout>

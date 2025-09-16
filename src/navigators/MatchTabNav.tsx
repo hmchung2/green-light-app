@@ -30,7 +30,7 @@ export default function MatchTabNav() {
             backgroundColor: theme.bgColor,
             borderBottomWidth: 1,
             borderBottomColor: theme.separatorLineColor,
-            elevation: 0, // removes Android shadow
+            elevation: 0,
           },
           tabBarIndicatorStyle: {
             backgroundColor: theme.fontColor,

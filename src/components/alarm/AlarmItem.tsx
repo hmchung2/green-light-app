@@ -1,22 +1,15 @@
-import styled from 'styled-components/native';
-import {Alarm} from '../../generated/graphql.ts';
-import AlarmItemImg from './AlarmItemImg.tsx';
+import {styled} from 'styled-components/native';
+import {Alarm} from '../../generated/graphql';
+import AlarmItemImg from './AlarmItemImg';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {RootStackParamList} from '../../shared/shared.types.ts';
+import {RootStackParamList} from '../../shared/shared.types';
 import React from 'react';
-
-interface AlarmItemProps {
-  id: number;
-  msg: string;
-  detail: string;
-  alarmImg: string;
-}
 
 const AlarmContainer = styled.TouchableOpacity`
   flex-direction: row;
   padding: 8px 10px;
-  align-items: center;
+  align-items: center; /* <-- 아이콘 + 텍스트 모두 중앙 정렬 */
 `;
 
 const AlarmImgContainer = styled.View`
@@ -25,7 +18,6 @@ const AlarmImgContainer = styled.View`
 
 const TextContainer = styled.View`
   flex: 1;
-  justify-content: center;
 `;
 
 const Title = styled.View`
@@ -34,19 +26,21 @@ const Title = styled.View`
 `;
 
 const Detail = styled.View`
-  padding-top: 5px;
+  margin-top: 2px;
 `;
 
 const MsgText = styled.Text`
   color: ${props => props.theme.fontColor};
   font-weight: 600;
   font-size: 16px;
+  line-height: 20px;
 `;
 
 const DetailText = styled.Text`
   color: ${props => props.theme.fontColor};
   font-weight: 300;
   font-size: 12px;
+  line-height: 16px;
 `;
 
 const IconContainer = styled.View<{size: number}>`
@@ -70,14 +64,11 @@ export default function AlarmItem(alarm: Alarm) {
   const navigation = useNavigation<AlarmItemNavigationProps>();
 
   const renderModal = () => {
-    console.log('need to write code for rendering modal');
     switch (alarm.alarmType) {
       case 1:
-        console.log('ok1');
         navigation.navigate('GreenLightAlarm', {alarm});
         break;
       default:
-        console.log('ok2');
         break;
     }
   };
@@ -89,7 +80,7 @@ export default function AlarmItem(alarm: Alarm) {
           alarmType={alarm.alarmType}
           alarmImgUrl={alarm.alarmImg}
           size={50}
-          glow={!alarm.read}
+          glow={alarm.alarmType === 1 && !alarm.read}
         />
       </AlarmImgContainer>
       <TextContainer>

@@ -1,17 +1,17 @@
 import React, {useEffect, useContext} from 'react';
 import {View, TouchableOpacity, Image} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {MediaType, PhotoQuality, launchCamera} from 'react-native-image-picker';
 import AuthButton from '../../components/auth/AuthButton';
-import styled from 'styled-components/native';
+import {styled} from 'styled-components/native';
 import {colors} from '../../colors';
 import StepBar from './StepBar';
-import {SignUpAppContext} from '../../hooks/SignUpContext.tsx';
+import {SignUpAppContext} from '../../hooks/SignUpContext';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {
   CreateAccountValidPage,
   RootStackParamList,
 } from '../../shared/shared.types';
+import * as ImagePicker from 'expo-image-picker';
 
 type StepFiveProps = NativeStackScreenProps<RootStackParamList, 'StepFive'>;
 
@@ -67,16 +67,15 @@ const RemoveIconTouchable = styled.TouchableOpacity`
 `;
 
 export default function StepFive({navigation}: StepFiveProps) {
-  const {avatarUri, setAvatarUri} = useContext(SignUpAppContext);
+  const {avatarUri, setAvatarUri, visitedSteps, setVisitedSteps} =
+    useContext(SignUpAppContext);
   const currentStep = 'StepFive';
-  const {visitedSteps, setVisitedSteps} = useContext(SignUpAppContext);
 
   useEffect(() => {
     setVisitedSteps([...visitedSteps, currentStep]);
   }, []);
 
   const handleRemoveAvatar = () => {
-    console.log('default');
     setAvatarUri(null);
   };
 
@@ -98,40 +97,31 @@ export default function StepFive({navigation}: StepFiveProps) {
     });
   }, [avatarUri, visitedSteps]);
 
-  const handleAvatarPress = () => {
-    const options = {
-      title: 'Select Avatar',
-      storageOptions: {
-        skipBackup: true,
-        path: 'images',
-      },
-      mediaType: 'photo' as MediaType,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1.0 as PhotoQuality,
-    };
-
-    // ImagePicker.showImagePicker(options, response => {
-    //   if (response.didCancel) {
-    //     console.log('User cancelled image picker');
-    //   } else if (response.error) {
-    //     console.log('ImagePicker Error: ', response.error);
-    //   } else {
-    //     const source = {uri: response.uri};
-    //     setAvatarUri(source.uri);
-    //   }
-    // });
-    launchCamera(options, response => {
-      if (response.didCancel) {
-        console.log('User cancelled camera');
-      } else if (response.errorMessage) {
-        console.log('Camera Error: ', response.errorMessage);
-      } else {
-        let imageUri = response.assets?.[0]?.uri || null;
-        setAvatarUri(imageUri);
-        console.log(imageUri);
+  const handleAvatarPress = async () => {
+    try {
+      const permissionResult =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        alert('사진 접근 권한이 필요합니다.');
+        return;
       }
-    });
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1], // 정사각형 크롭
+        quality: 0.7,
+      });
+
+      console.log('ImagePicker result:', result);
+
+      if (!result.canceled) {
+        const selectedAsset = result.assets[0];
+        setAvatarUri(selectedAsset.uri);
+      }
+    } catch (e) {
+      console.error('Error picking image:', e);
+    }
   };
 
   return (
@@ -163,7 +153,7 @@ export default function StepFive({navigation}: StepFiveProps) {
             {avatarUri ? (
               <Image
                 source={{uri: avatarUri}}
-                style={{height: 200, width: 200, backgroundColor: 'blue'}}
+                style={{height: 200, width: 200}}
               />
             ) : (
               <Icon name="person" size={80} color="white" />

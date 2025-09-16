@@ -1,8 +1,10 @@
 import React from 'react';
-import styled from 'styled-components/native';
-import LabeledInputContainer from './LabeldComponent.tsx';
+import {styled} from 'styled-components/native';
+import LabeledInputContainer from './LabeldComponent';
 
-const TextInput = styled.TextInput`
+const TextInput = styled.TextInput.attrs(props => ({
+  placeholderTextColor: props.theme.placeholderFontColor,
+}))`
   padding: 5px;
   font-size: 15px;
   color: ${props => props.theme.fontColor};

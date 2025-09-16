@@ -1,5 +1,6 @@
 import {colorModeVar} from '../apollo';
 import {useReactiveVar} from '@apollo/client';
+import React from 'react';
 import {ActivityIndicator} from 'react-native';
 
 const Loading = () => {

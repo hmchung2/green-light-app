@@ -5,13 +5,13 @@ import {
   useFollowUserMutation,
   useSeeSimpleProfileQuery,
   useUnfollowUserMutation,
-} from '../../generated/graphql.ts';
+} from '../../generated/graphql';
 import React, {useEffect, useState} from 'react';
-import styled from 'styled-components/native';
+import {styled, useTheme} from 'styled-components/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {RootStackParamList} from '../../shared/shared.types.ts';
-import Loading from '../../components/Loading.tsx';
-import AvatarImg from '../../components/users/AvatarImg.tsx';
+import {RootStackParamList} from '../../shared/shared.types';
+import Loading from '../../components/Loading';
+import AvatarImg from '../../components/users/AvatarImg';
 import {
   ActivityIndicator,
   FlatList,
@@ -20,10 +20,10 @@ import {
   TouchableOpacity,
   useWindowDimensions,
 } from 'react-native';
-import {colors} from '../../colors.ts';
-import {logUserOut} from '../../apollo.tsx';
+import {colors} from '../../colors';
+import {logUserOut} from '../../apollo';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {useTheme} from 'styled-components';
+import {calculateAge} from '@/src/hooks/Utils';
 
 type SimpleProfileProps = NativeStackScreenProps<
   RootStackParamList,
@@ -117,6 +117,7 @@ const RightActionText = styled.Text`
 const CommonText = styled.Text`
   font-size: 15px;
   margin-top: 2px;
+  color: ${props => props.theme.fontColor};
 `;
 
 const UserInfoContainer = styled.View<{width: number}>`
@@ -129,6 +130,7 @@ const UserInfoContainer = styled.View<{width: number}>`
 const Username = styled.Text`
   font-weight: bold;
   font-size: 18px;
+  color: ${props => props.theme.fontColor};
 `;
 
 const AvatarContainer = styled.View``;
@@ -136,6 +138,7 @@ const AvatarContainer = styled.View``;
 const Bio = styled.Text`
   font-size: 15px;
   margin-top: 3px;
+  color: ${props => props.theme.fontColor};
 `;
 
 const Buttons = styled.View`
@@ -199,7 +202,6 @@ export default function SimpleProfile({
     setModalVisible(false);
   };
 
-  // eslint-disable-next-line react/no-unstable-nested-components
   const RowSeparator = () => <GapView />;
 
   const renderItem = ({item: photo}: any) => {
@@ -253,16 +255,6 @@ export default function SimpleProfile({
   while (preparedPhotos.length < 4) {
     preparedPhotos.push(null); // Fill with null for empty spots
   }
-
-  const calculateAge = (birthTimeStamp: string | undefined) => {
-    if (birthTimeStamp === undefined) {
-      return '???';
-    }
-    const birthDate = new Date(parseInt(birthTimeStamp, 10));
-    const ageDifMs = Date.now() - birthDate.getTime();
-    const ageDate = new Date(ageDifMs);
-    return Math.abs(ageDate.getUTCFullYear() - 1970);
-  };
 
   const [followUserMutation, {loading: followUserLoading}] =
     useFollowUserMutation({
@@ -358,7 +350,7 @@ export default function SimpleProfile({
               <Username>{seeProfileData?.seeProfile?.username}</Username>
               <Bio>
                 gender :
-                {seeProfileData?.seeProfile?.sex == 'F' ? ' Female' : ' Male'}
+                {seeProfileData?.seeProfile?.sex === 'F' ? ' Female' : ' Male'}
               </Bio>
               <Bio>
                 age : {calculateAge(seeProfileData?.seeProfile?.birthDay)}

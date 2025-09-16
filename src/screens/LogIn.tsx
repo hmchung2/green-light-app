@@ -6,8 +6,8 @@ import {useForm} from 'react-hook-form';
 import AuthButton from '../components/auth/AuthButton';
 import {logUserIn} from '../apollo';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {RootStackParamList} from '../shared/shared.types.ts';
-import ErrorMessage from '../components/text/ErrorMessage.tsx';
+import {RootStackParamList} from '../shared/shared.types';
+import ErrorMessage from '../components/text/ErrorMessage';
 
 const LOGIN_MUTATION = gql`
   mutation login($username: String!, $password: String!) {
