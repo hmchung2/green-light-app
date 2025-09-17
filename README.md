@@ -134,6 +134,4 @@ GreenLight는
 
 ---
 
-💡 저는 단순한 아이디어가 아닌,  
-**Apollo + AWS + Firebase + Prisma** 기반으로  
-실제 구현까지 완성
+**Apollo + AWS + Firebase + Prisma** 기반으로 실제 구현
