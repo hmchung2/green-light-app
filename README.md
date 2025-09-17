@@ -133,5 +133,6 @@ GreenLight는
 **새로운 만남 패러다임**을 제시합니다.  
 
 ---
-
 **Apollo + AWS + Firebase + Prisma** 기반으로 실제 구현
+
+> ⚠️ 백엔드는 [green-light-backend](https://github.com/hmchung2/green-light-backend) 레포를 참조하세요.
