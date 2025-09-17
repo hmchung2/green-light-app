@@ -59,7 +59,7 @@ const SideBar = ({
     navigation.navigate('StackProfileNav', {
       screen: 'SimpleProfile',
       params: {
-        id: 40, // todo : change laters ->그냥 id 박어
+        id: id,
       },
     });
   };
