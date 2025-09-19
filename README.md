@@ -136,4 +136,5 @@ GreenLight는
 **Apollo + AWS + Firebase + Prisma** 기반으로 실제 구현
 
 > ⚠️ 백엔드는 [green-light-backend](https://github.com/hmchung2/green-light-backend) 레포를 참조하세요.
+
 > .env 세팅은 비공개
